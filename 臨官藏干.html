@@ -1,0 +1,753 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>天干臨官位／地支藏干 抽考工具</title>
+    <style>
+      :root{
+        --bg:#f7f7f8;
+        --card:#ffffff;
+        --text:#111827;
+        --muted:#6b7280;
+        --border:#e5e7eb;
+        --shadow: 0 10px 30px rgba(0,0,0,.06);
+        --radius: 16px;
+        --ok:#15803d;
+        --bad:#b91c1c;
+        --focus: rgba(17,24,39,.10);
+      }
+      *{ box-sizing:border-box; }
+      body{
+        margin:0;
+        font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+        background:var(--bg);
+        color:var(--text);
+      }
+      .wrap{
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 22px 18px 40px;
+      }
+      header{
+        display:flex;
+        align-items:flex-end;
+        justify-content:space-between;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+      h1{
+        margin:0;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: .5px;
+      }
+      .sub{
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+      .card{
+        background:var(--card);
+        border:1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 18px;
+      }
+      .topbar{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .progressWrap{ flex: 1; }
+      .progressText{
+        margin: 0 0 8px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .progressTrack{
+        width: 100%;
+        height: 12px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        border: 1px solid var(--border);
+        overflow:hidden;
+      }
+      .progressBar{
+        height:100%;
+        width: 0%;
+        background: #111827;
+      }
+      button{
+        appearance:none;
+        border: 1px solid var(--border);
+        background: #fff;
+        color: var(--text);
+        padding: 10px 14px;
+        border-radius: 12px;
+        font-weight: 750;
+        cursor: pointer;
+      }
+      button.primary{
+        border-color: rgba(17,24,39,.35);
+        background: #111827;
+        color: #fff;
+      }
+      button:active{ transform: translateY(1px); }
+      button[disabled]{ opacity:.55; cursor:not-allowed; }
+
+      .menu{
+        display:grid;
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        gap: 12px;
+      }
+      .menu.three{
+        grid-template-columns: repeat(3, minmax(0,1fr));
+      }
+      .menuBtn{
+        text-align:left;
+        padding: 16px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: #fff;
+      }
+      .menuTitle{
+        font-size: 16px;
+        font-weight: 850;
+        margin: 0 0 6px;
+      }
+      .menuDesc{
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .quiz{
+        display:none;
+      }
+      .quiz.show{ display:block; }
+
+      .grid{
+        display:grid;
+        grid-template-columns: repeat(3, minmax(0,1fr));
+        gap: 14px;
+        margin-top: 10px;
+      }
+      .grid.dizhi{ grid-template-columns: repeat(4, minmax(0,1fr)); }
+
+      .field{
+        display:flex;
+        flex-direction:column;
+        gap: 8px;
+      }
+      label{
+        font-size: 14px;
+        font-weight: 800;
+      }
+      .mini{
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: -4px;
+      }
+      input{
+        width:100%;
+        padding: 14px 14px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: #fff;
+        font-size: 22px;
+        font-weight: 750;
+        outline:none;
+        transition: border-color .12s ease, box-shadow .12s ease, background-color .12s ease;
+      }
+      input:focus{
+        box-shadow: 0 0 0 4px var(--focus);
+        border-color: rgba(17,24,39,.45);
+      }
+      input[disabled]{
+        background:#f3f4f6;
+        color:#111827;
+        cursor:not-allowed;
+      }
+      .okInput{
+        border-color: rgba(21,128,61,.60) !important;
+        box-shadow: 0 0 0 4px rgba(21,128,61,.10) !important;
+        background: rgba(21,128,61,.04) !important;
+      }
+      .badInput{
+        border-color: rgba(185,28,28,.60) !important;
+        box-shadow: 0 0 0 4px rgba(185,28,28,.10) !important;
+        background: rgba(185,28,28,.04) !important;
+      }
+
+      .status{
+        margin-top: 14px;
+        border: 1px solid var(--border);
+        background: #fafafa;
+        border-radius: 14px;
+        padding: 12px 14px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.5;
+        min-height: 50px;
+        display:flex;
+        align-items:center;
+      }
+      .okText{ color: var(--ok); font-weight: 900; }
+      .badText{ color: var(--bad); font-weight: 900; }
+
+      .doneScreen{
+        display:none;
+        text-align:center;
+        padding: 26px 12px 10px;
+      }
+      .doneScreen.show{ display:block; }
+      .doneTitle{
+        margin: 0 0 10px;
+        font-size: 22px;
+        font-weight: 900;
+      }
+      .doneText{
+        margin: 0 0 16px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      table{
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow:hidden;
+        background:#fff;
+      }
+      th, td{
+        border-bottom: 1px solid var(--border);
+        padding: 10px 12px;
+        text-align:left;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+      th{
+        background:#f8fafc;
+        font-weight: 900;
+      }
+      tr:last-child td{ border-bottom: none; }
+      .tablesView{
+        display:none;
+      }
+      .tablesView.show{ display:block; }
+      .sectionTitle{
+        margin: 4px 0 10px;
+        font-size: 16px;
+        font-weight: 900;
+      }
+      .sectionHint{
+        margin: -6px 0 12px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .tableWrap{
+        margin-top: 14px;
+      }
+
+      @media (max-width: 760px){
+        .menu, .menu.three{ grid-template-columns: 1fr; }
+        .grid{ grid-template-columns: 1fr; }
+        .grid.dizhi{ grid-template-columns: 1fr; }
+        input{ font-size: 20px; }
+        header{ align-items:flex-start; flex-direction:column; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div>
+          <h1>抽考工具</h1>
+          <p class="sub">單頁模式（SPA）。重新整理頁面會清空進度。</p>
+        </div>
+        <div>
+          <button id="backBtn" type="button">返回主選單</button>
+        </div>
+      </header>
+
+      <div class="card">
+        <div id="menuView">
+          <div class="menu three">
+            <button class="menuBtn" id="startTiangan" type="button">
+              <p class="menuTitle">天干臨官位</p>
+              <p class="menuDesc">題庫：10 天干 × 3 種出題角度 = 30 題。不重複隨機抽題。</p>
+            </button>
+            <button class="menuBtn" id="startDizhi" type="button">
+              <p class="menuTitle">地支藏干</p>
+              <p class="menuDesc">題庫：12 地支 = 12 題。不重複隨機抽題。無中/餘氣以「-」作答。</p>
+            </button>
+            <button class="menuBtn" id="showTables" type="button">
+              <p class="menuTitle">資料表（查看）</p>
+              <p class="menuDesc">列出天干臨官位與地支藏干完整對照表。</p>
+            </button>
+          </div>
+        </div>
+
+        <div id="tablesView" class="tablesView">
+          <div class="tableWrap">
+            <div class="sectionTitle">天干臨官位</div>
+            <div class="sectionHint">欄位：天干、臨官位（祿）、長生位、備註</div>
+            <table aria-label="天干臨官位表">
+              <thead>
+                <tr>
+                  <th>天干</th>
+                  <th>臨官位（祿）</th>
+                  <th>長生位</th>
+                  <th>備註</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>甲木</td><td>寅</td><td>-</td><td></td></tr>
+                <tr><td>乙木</td><td>卯</td><td>-</td><td></td></tr>
+                <tr><td>丙火</td><td>巳</td><td>-</td><td></td></tr>
+                <tr><td>丁火</td><td>午</td><td>-</td><td></td></tr>
+                <tr><td>戊土</td><td>巳</td><td>寅</td><td>老師強調的能量根基</td></tr>
+                <tr><td>己土</td><td>午</td><td>酉</td><td>老師強調的能量根基</td></tr>
+                <tr><td>庚金</td><td>申</td><td>-</td><td></td></tr>
+                <tr><td>辛金</td><td>酉</td><td>-</td><td></td></tr>
+                <tr><td>壬水</td><td>亥</td><td>-</td><td></td></tr>
+                <tr><td>癸水</td><td>子</td><td>-</td><td></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="tableWrap">
+            <div class="sectionTitle">地支藏干</div>
+            <div class="sectionHint">欄位：地支、本氣（主氣）、中氣、餘氣</div>
+            <table aria-label="地支藏干表">
+              <thead>
+                <tr>
+                  <th>地支</th>
+                  <th>本氣（主氣）</th>
+                  <th>中氣</th>
+                  <th>餘氣</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>子</td><td>癸水</td><td>-</td><td>-</td></tr>
+                <tr><td>丑</td><td>己土</td><td>癸水</td><td>辛金</td></tr>
+                <tr><td>寅</td><td>甲木</td><td>丙火</td><td>戊土</td></tr>
+                <tr><td>卯</td><td>乙木</td><td>-</td><td>-</td></tr>
+                <tr><td>辰</td><td>戊土</td><td>乙木</td><td>癸水</td></tr>
+                <tr><td>巳</td><td>丙火</td><td>庚金</td><td>戊土</td></tr>
+                <tr><td>午</td><td>丁火</td><td>己土</td><td>-</td></tr>
+                <tr><td>未</td><td>己土</td><td>丁火</td><td>乙木</td></tr>
+                <tr><td>申</td><td>庚金</td><td>壬水</td><td>戊土</td></tr>
+                <tr><td>酉</td><td>辛金</td><td>-</td><td>-</td></tr>
+                <tr><td>戌</td><td>戊土</td><td>辛金</td><td>丁火</td></tr>
+                <tr><td>亥</td><td>壬水</td><td>甲木</td><td>-</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="quizView" class="quiz">
+          <div class="topbar">
+            <div class="progressWrap">
+              <p class="progressText" id="progressText">進度：0/0</p>
+              <div class="progressTrack" role="progressbar" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0">
+                <div class="progressBar" id="progressBar"></div>
+              </div>
+            </div>
+            <div>
+              <button class="primary" id="skipBtn" type="button">換下一題</button>
+            </div>
+          </div>
+
+          <div id="tianganPanel" style="display:none;">
+            <div class="grid">
+              <div class="field">
+                <label for="tg_stem">天干</label>
+                <input id="tg_stem" autocomplete="off" />
+              </div>
+              <div class="field">
+                <label for="tg_attr">屬性</label>
+                <input id="tg_attr" autocomplete="off" />
+              </div>
+              <div class="field">
+                <label for="tg_pos">臨官位</label>
+                <input id="tg_pos" autocomplete="off" />
+              </div>
+            </div>
+          </div>
+
+          <div id="dizhiPanel" style="display:none;">
+            <div class="grid dizhi">
+              <div class="field">
+                <label for="dz_branch">地支</label>
+                <input id="dz_branch" autocomplete="off" />
+              </div>
+              <div class="field">
+                <label for="dz_main">主氣</label>
+                <input id="dz_main" autocomplete="off" />
+                <div class="mini">主氣</div>
+              </div>
+              <div class="field">
+                <label for="dz_mid">中氣</label>
+                <input id="dz_mid" autocomplete="off" />
+                <div class="mini">中氣（無則輸入 -）</div>
+              </div>
+              <div class="field">
+                <label for="dz_rem">餘氣</label>
+                <input id="dz_rem" autocomplete="off" />
+                <div class="mini">餘氣（無則輸入 -）</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="status" id="status" role="status" aria-live="polite"></div>
+
+          <div id="doneScreen" class="doneScreen" aria-live="polite">
+            <p class="doneTitle">恭喜完成！</p>
+            <p class="doneText" id="doneText">你已完成本模式所有題目。</p>
+            <button class="primary" id="doneBackBtn" type="button">回主選單</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+// 天干臨官位／地支藏干 抽考工具（SPA）
+
+const TIANGAN_DATA = [
+  { stem: "甲", attr: "陽木", pos: "寅" },
+  { stem: "乙", attr: "陰木", pos: "卯" },
+  { stem: "丙", attr: "陽火", pos: "巳" },
+  { stem: "丁", attr: "陰火", pos: "午" },
+  { stem: "戊", attr: "陽土", pos: "寅巳" },
+  { stem: "己", attr: "陰土", pos: "酉午" },
+  { stem: "庚", attr: "陽金", pos: "申" },
+  { stem: "辛", attr: "陰金", pos: "酉" },
+  { stem: "壬", attr: "陽水", pos: "亥" },
+  { stem: "癸", attr: "陰水", pos: "子" },
+];
+
+const DIZHI_DATA = [
+  { branch: "子", main: "癸水", mid: "-", rem: "-" },
+  { branch: "丑", main: "己土", mid: "癸水", rem: "辛金" },
+  { branch: "寅", main: "甲木", mid: "丙火", rem: "戊土" },
+  { branch: "卯", main: "乙木", mid: "-", rem: "-" },
+  { branch: "辰", main: "戊土", mid: "乙木", rem: "癸水" },
+  { branch: "巳", main: "丙火", mid: "庚金", rem: "戊土" },
+  { branch: "午", main: "丁火", mid: "己土", rem: "-" },
+  { branch: "未", main: "己土", mid: "丁火", rem: "乙木" },
+  { branch: "申", main: "庚金", mid: "壬水", rem: "戊土" },
+  { branch: "酉", main: "辛金", mid: "-", rem: "-" },
+  { branch: "戌", main: "戊土", mid: "辛金", rem: "丁火" },
+  { branch: "亥", main: "壬水", mid: "甲木", rem: "-" },
+];
+
+const els = {
+  menuView: document.getElementById("menuView"),
+  tablesView: document.getElementById("tablesView"),
+  quizView: document.getElementById("quizView"),
+  backBtn: document.getElementById("backBtn"),
+  startTiangan: document.getElementById("startTiangan"),
+  startDizhi: document.getElementById("startDizhi"),
+  showTables: document.getElementById("showTables"),
+
+  progressText: document.getElementById("progressText"),
+  progressBar: document.getElementById("progressBar"),
+  progressTrack: document.querySelector(".progressTrack[role='progressbar']"),
+
+  skipBtn: document.getElementById("skipBtn"),
+  status: document.getElementById("status"),
+
+  tianganPanel: document.getElementById("tianganPanel"),
+  tg_stem: document.getElementById("tg_stem"),
+  tg_attr: document.getElementById("tg_attr"),
+  tg_pos: document.getElementById("tg_pos"),
+
+  dizhiPanel: document.getElementById("dizhiPanel"),
+  dz_branch: document.getElementById("dz_branch"),
+  dz_main: document.getElementById("dz_main"),
+  dz_mid: document.getElementById("dz_mid"),
+  dz_rem: document.getElementById("dz_rem"),
+
+  doneScreen: document.getElementById("doneScreen"),
+  doneText: document.getElementById("doneText"),
+  doneBackBtn: document.getElementById("doneBackBtn"),
+};
+
+function shuffleInPlace(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function normalize(s) {
+  return (s ?? "").toString().replace(/\s+/g, "").replace(/[　]/g, "").trim();
+}
+
+function normalizeDash(s) {
+  const t = normalize(s);
+  // 地支藏干：要求真的輸入「-」，空白不視為「-」
+  if (t === "-" || t === "－" || t === "—" || t === "–") return "-";
+  return t;
+}
+
+function clearMarks(inputs) {
+  for (const i of inputs) i.classList.remove("okInput", "badInput");
+}
+
+function setStatus(html) {
+  els.status.innerHTML = html;
+}
+
+function setProgress(done, total) {
+  els.progressText.textContent = `進度：${done}/${total}`;
+  els.progressTrack?.setAttribute("aria-valuemin", "0");
+  els.progressTrack?.setAttribute("aria-valuemax", String(total));
+  els.progressTrack?.setAttribute("aria-valuenow", String(done));
+  const pct = total === 0 ? 0 : (done / total) * 100;
+  els.progressBar.style.width = `${pct}%`;
+}
+
+function showMenu() {
+  els.menuView.style.display = "block";
+  els.tablesView?.classList.remove("show");
+  els.quizView.classList.remove("show");
+  els.tianganPanel.style.display = "none";
+  els.dizhiPanel.style.display = "none";
+  els.doneScreen.classList.remove("show");
+  setStatus("請選擇一個測驗模式。");
+  setProgress(0, 0);
+}
+
+function showQuiz() {
+  els.menuView.style.display = "none";
+  els.tablesView?.classList.remove("show");
+  els.quizView.classList.add("show");
+  els.doneScreen.classList.remove("show");
+}
+
+function showTables() {
+  els.menuView.style.display = "none";
+  els.quizView.classList.remove("show");
+  els.doneScreen.classList.remove("show");
+  els.tianganPanel.style.display = "none";
+  els.dizhiPanel.style.display = "none";
+  els.tablesView?.classList.add("show");
+  setStatus("資料表模式：僅供查看。可按右上角返回主選單。");
+  setProgress(0, 0);
+}
+
+let mode = null; // "tiangan" | "dizhi"
+let bank = [];
+let total = 0;
+let current = null;
+let locked = false;
+
+function buildTianganBank() {
+  const keys = ["stem", "attr", "pos"];
+  const q = [];
+  for (let i = 0; i < TIANGAN_DATA.length; i++) {
+    for (const showKey of keys) q.push({ idx: i, showKey });
+  }
+  return q;
+}
+
+function buildDizhiBank() {
+  const q = [];
+  for (let i = 0; i < DIZHI_DATA.length; i++) q.push({ idx: i });
+  return q;
+}
+
+function focusFirstEditable(panelInputs) {
+  const first = panelInputs.find(i => !i.disabled);
+  first?.focus();
+}
+
+function validateAndMaybeAdvance() {
+  if (!current || locked) return;
+
+  if (mode === "tiangan") {
+    const data = TIANGAN_DATA[current.idx];
+    const mapping = { stem: els.tg_stem, attr: els.tg_attr, pos: els.tg_pos };
+    const inputs = [els.tg_stem, els.tg_attr, els.tg_pos];
+
+    let allOk = true;
+    for (const key of ["stem", "attr", "pos"]) {
+      const input = mapping[key];
+      const isGiven = input.disabled;
+      if (isGiven) {
+        input.classList.add("okInput");
+        continue;
+      }
+      const ok = normalize(input.value) === normalize(data[key]);
+      input.classList.toggle("okInput", ok);
+      input.classList.toggle("badInput", !ok && normalize(input.value) !== "");
+      if (!ok) allOk = false;
+    }
+
+    if (allOk) {
+      locked = true;
+      setStatus(`<span class="okText">正確</span>（1 秒後自動下一題）`);
+      window.setTimeout(() => nextQuestion(), 1000);
+    } else {
+      setStatus("持續修正到全部正確後會自動跳題。");
+    }
+
+    for (const i of inputs) {
+      if (!i.disabled && normalize(i.value) === "") i.classList.remove("badInput");
+    }
+    return;
+  }
+
+  const data = DIZHI_DATA[current.idx];
+
+  els.dz_branch.classList.add("okInput");
+
+  const checks = [
+    { input: els.dz_main, correct: data.main, normalizer: normalize },
+    { input: els.dz_mid, correct: data.mid, normalizer: normalizeDash },
+    { input: els.dz_rem, correct: data.rem, normalizer: normalizeDash },
+  ];
+
+  let allOk = true;
+  for (const c of checks) {
+    const user = c.normalizer(c.input.value);
+    const ok = user === c.normalizer(c.correct);
+    c.input.classList.toggle("okInput", ok);
+    // 空白也視為錯誤（因為無中氣/餘氣者仍需輸入 -）
+    c.input.classList.toggle("badInput", !ok);
+    if (!ok) allOk = false;
+  }
+
+  if (allOk) {
+    locked = true;
+    setStatus(`<span class="okText">正確</span>（1 秒後自動下一題）`);
+    window.setTimeout(() => nextQuestion(), 1000);
+  } else {
+    setStatus("提示：無中氣/餘氣者請輸入「-」。修正到全對會自動跳題。");
+  }
+}
+
+function renderQuestion() {
+  locked = false;
+  clearMarks([els.tg_stem, els.tg_attr, els.tg_pos, els.dz_branch, els.dz_main, els.dz_mid, els.dz_rem]);
+
+  const done = total - bank.length;
+  setProgress(done, total);
+
+  if (mode === "tiangan") {
+    els.tianganPanel.style.display = "block";
+    els.dizhiPanel.style.display = "none";
+    els.doneScreen.classList.remove("show");
+
+    const data = TIANGAN_DATA[current.idx];
+    const mapping = { stem: els.tg_stem, attr: els.tg_attr, pos: els.tg_pos };
+    const inputs = [els.tg_stem, els.tg_attr, els.tg_pos];
+
+    for (const key of ["stem", "attr", "pos"]) {
+      const input = mapping[key];
+      const isGiven = key === current.showKey;
+      input.disabled = isGiven;
+      input.value = isGiven ? data[key] : "";
+    }
+
+    setStatus("請填寫其餘兩項；全對後 1 秒自動下一題。");
+    focusFirstEditable(inputs);
+    return;
+  }
+
+  els.tianganPanel.style.display = "none";
+  els.dizhiPanel.style.display = "block";
+  els.doneScreen.classList.remove("show");
+
+  const data = DIZHI_DATA[current.idx];
+  els.dz_branch.disabled = true;
+  els.dz_branch.value = data.branch;
+  els.dz_main.disabled = false;
+  els.dz_mid.disabled = false;
+  els.dz_rem.disabled = false;
+  els.dz_main.value = "";
+  els.dz_mid.value = "";
+  els.dz_rem.value = "";
+
+  setStatus("請填寫主氣／中氣／餘氣；全對後 1 秒自動下一題。");
+  focusFirstEditable([els.dz_main, els.dz_mid, els.dz_rem]);
+}
+
+function finishMode() {
+  setProgress(total, total);
+  els.skipBtn.disabled = true;
+  els.doneScreen.classList.add("show");
+  els.tianganPanel.style.display = "none";
+  els.dizhiPanel.style.display = "none";
+  setStatus(`<span class="okText">完成</span>：本模式題目已全部作答。`);
+  els.doneText.textContent =
+    mode === "tiangan"
+      ? "你已完成「天干臨官位」全部 30 題。"
+      : "你已完成「地支藏干」全部 12 題。";
+}
+
+function nextQuestion() {
+  if (bank.length === 0) return finishMode();
+  current = bank.pop();
+  renderQuestion();
+}
+
+function startMode(nextMode) {
+  mode = nextMode;
+  els.skipBtn.disabled = false;
+  showQuiz();
+
+  if (mode === "tiangan") {
+    bank = shuffleInPlace(buildTianganBank());
+    total = bank.length;
+    nextQuestion();
+    return;
+  }
+
+  bank = shuffleInPlace(buildDizhiBank());
+  total = bank.length;
+  nextQuestion();
+}
+
+function wireLiveValidation(inputs) {
+  for (const i of inputs) {
+    i.addEventListener("input", () => validateAndMaybeAdvance());
+    i.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        validateAndMaybeAdvance();
+      }
+    });
+  }
+}
+
+function wireEvents() {
+  els.startTiangan.addEventListener("click", () => startMode("tiangan"));
+  els.startDizhi.addEventListener("click", () => startMode("dizhi"));
+  els.showTables.addEventListener("click", () => showTables());
+
+  els.backBtn.addEventListener("click", () => showMenu());
+  els.doneBackBtn.addEventListener("click", () => showMenu());
+
+  els.skipBtn.addEventListener("click", () => {
+    if (!mode) return;
+    nextQuestion();
+  });
+
+  wireLiveValidation([els.tg_stem, els.tg_attr, els.tg_pos, els.dz_main, els.dz_mid, els.dz_rem]);
+}
+
+wireEvents();
+showMenu();
+    </script>
+  </body>
+</html>
