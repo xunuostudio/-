@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>天干臨官位／地支藏干 抽考工具</title>
+    <title>節氣／天干臨官位／地支藏干 抽考工具</title>
     <style>
       :root{
         --bg:#f7f7f8;
@@ -107,6 +107,9 @@
       .menu.three{
         grid-template-columns: repeat(3, minmax(0,1fr));
       }
+      .menu.four{
+        grid-template-columns: repeat(2, minmax(0,1fr));
+      }
       .menuBtn{
         text-align:left;
         padding: 16px;
@@ -184,6 +187,45 @@
         background: rgba(185,28,28,.04) !important;
       }
 
+      /* 新增：多層次選單與題目顯示 */
+      .question-area {
+        font-size: 1.5rem;
+        margin: 1.5rem 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        line-height: 1.8;
+      }
+      .quiz-input-cell {
+        width: 60px;
+        height: 45px;
+        text-align: center;
+        font-size: 1.4rem;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        outline: none;
+        transition: all 0.2s;
+        padding: 0;
+      }
+      .quiz-input-cell.correct {
+        background-color: #dcfce7 !important;
+        border-color: #22c55e !important;
+        color: #166534 !important;
+      }
+      .quiz-input-cell.incorrect {
+        background-color: #fee2e2 !important;
+        border-color: #ef4444 !important;
+        color: #991b1b !important;
+      }
+      .given-text {
+        font-weight: 900;
+        color: #111827;
+        padding: 0 4px;
+        text-decoration: underline;
+      }
+
       .status{
         margin-top: 14px;
         border: 1px solid var(--border);
@@ -254,9 +296,12 @@
       .tableWrap{
         margin-top: 14px;
       }
+      .stats{ margin-top: 10px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+      .statsLine{ margin: 0; }
+      .row2{ grid-column: 1 / -1; }
 
       @media (max-width: 760px){
-        .menu, .menu.three{ grid-template-columns: 1fr; }
+        .menu, .menu.three, .menu.four{ grid-template-columns: 1fr; }
         .grid{ grid-template-columns: 1fr; }
         .grid.dizhi{ grid-template-columns: 1fr; }
         input{ font-size: 20px; }
@@ -278,23 +323,82 @@
 
       <div class="card">
         <div id="menuView">
-          <div class="menu three">
-            <button class="menuBtn" id="startTiangan" type="button">
-              <p class="menuTitle">天干臨官位</p>
-              <p class="menuDesc">題庫：10 天干 × 3 種出題角度 = 30 題。不重複隨機抽題。</p>
+          <!-- 主選單 -->
+          <div id="mainMenu" class="menu four">
+            <button class="menuBtn" id="startJieqi" type="button">
+              <p class="menuTitle">24 節氣與地支月</p>
+              <p class="menuDesc">60 題（12 月 × 5 欄位）。不重複隨機抽題。正確率與計時。</p>
             </button>
-            <button class="menuBtn" id="startDizhi" type="button">
-              <p class="menuTitle">地支藏干</p>
-              <p class="menuDesc">題庫：12 地支 = 12 題。不重複隨機抽題。無中/餘氣以「-」作答。</p>
+            <button class="menuBtn" id="toTianganMenu" type="button">
+              <p class="menuTitle">天干</p>
+              <p class="menuDesc">天干臨官位、天干四沖、五合、掌訣起點。</p>
+            </button>
+            <button class="menuBtn" id="toDizhiMenu" type="button">
+              <p class="menuTitle">地支</p>
+              <p class="menuDesc">地支藏干、地支三合、三會、六沖、六合。</p>
             </button>
             <button class="menuBtn" id="showTables" type="button">
               <p class="menuTitle">資料表（查看）</p>
-              <p class="menuDesc">列出天干臨官位與地支藏干完整對照表。</p>
+              <p class="menuDesc">列出所有對應表。</p>
+            </button>
+          </div>
+
+          <!-- 天干子選單 -->
+          <div id="tianganMenu" class="menu four" style="display:none;">
+            <button class="menuBtn" id="startTianganLingguan" type="button">
+              <p class="menuTitle">天干臨官位</p>
+              <p class="menuDesc">題庫：10 天干 × 3 種出題角度 = 30 題。</p>
+            </button>
+            <button class="menuBtn" id="startTianganRelations" type="button">
+              <p class="menuTitle">天干四沖、五合、掌訣起點</p>
+              <p class="menuDesc">練習天干之間的合化與相沖關係。</p>
+            </button>
+          </div>
+
+          <!-- 地支子選單 -->
+          <div id="dizhiMenu" class="menu four" style="display:none;">
+            <button class="menuBtn" id="startDizhiCanggan" type="button">
+              <p class="menuTitle">地支藏干</p>
+              <p class="menuDesc">24 題（由支填氣、由氣填支各 12 題）。</p>
+            </button>
+            <button class="menuBtn" id="startDizhiSanhe" type="button">
+              <p class="menuTitle">地支三合</p>
+              <p class="menuDesc">練習地支三合局關係。</p>
+            </button>
+            <button class="menuBtn" id="startDizhiSanhui" type="button">
+              <p class="menuTitle">地支三會</p>
+              <p class="menuDesc">練習地支三會方關係。</p>
+            </button>
+            <button class="menuBtn" id="startDizhiLiuchong" type="button">
+              <p class="menuTitle">地支六沖</p>
+              <p class="menuDesc">練習地支六沖關係。</p>
+            </button>
+            <button class="menuBtn" id="startDizhiLiuhe" type="button">
+              <p class="menuTitle">地支六合</p>
+              <p class="menuDesc">練習地支六合關係。</p>
             </button>
           </div>
         </div>
 
         <div id="tablesView" class="tablesView">
+          <div class="tableWrap">
+            <div class="sectionTitle">24 節氣</div>
+            <table aria-label="24 節氣表">
+              <thead>
+                <tr>
+                  <th>月份</th>
+                  <th>地支月</th>
+                  <th>節（前半月）</th>
+                  <th>氣（後半月）</th>
+                  <th>季節</th>
+                </tr>
+              </thead>
+              <tbody id="jieqiTableBody">
+                <!-- 由 JS 動態生成 -->
+              </tbody>
+            </table>
+          </div>
+
           <div class="tableWrap">
             <div class="sectionTitle">天干臨官位</div>
             <div class="sectionHint">欄位：天干、臨官位（祿）、長生位、備註</div>
@@ -350,6 +454,10 @@
               </tbody>
             </table>
           </div>
+
+          <div id="extraTables">
+            <!-- 由 JS 動態生成地支關係表 -->
+          </div>
         </div>
 
         <div id="quizView" class="quiz">
@@ -362,6 +470,41 @@
             </div>
             <div>
               <button class="primary" id="skipBtn" type="button">換下一題</button>
+            </div>
+          </div>
+
+          <div id="jieqiPanel" style="display:none;">
+            <div class="grid" style="grid-template-columns: repeat(2, minmax(0,1fr));">
+              <div class="field">
+                <label for="jq_month">月份</label>
+                <input id="jq_month" autocomplete="off" inputmode="numeric" placeholder="例：1 或 1月" />
+              </div>
+              <div class="field">
+                <label for="jq_branchMonth">地支月</label>
+                <input id="jq_branchMonth" autocomplete="off" placeholder="例：丑 或 丑月" />
+              </div>
+              <div class="field">
+                <label for="jq_jie">節（前半月）</label>
+                <input id="jq_jie" autocomplete="off" placeholder="例：小寒" />
+              </div>
+              <div class="field">
+                <label for="jq_qi">氣（後半月）</label>
+                <input id="jq_qi" autocomplete="off" placeholder="例：大寒" />
+              </div>
+              <div class="field row2">
+                <label for="jq_season">季節</label>
+                <input id="jq_season" autocomplete="off" placeholder="初春、春、春末、初夏、夏、夏末、初秋、秋、秋末、初冬、冬、冬末" />
+              </div>
+            </div>
+            <div class="actions" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:14px;">
+              <button class="primary" id="jq_checkBtn" type="button">核對</button>
+              <button id="jq_nextBtn" type="button">下一題</button>
+              <button id="jq_revealBtn" type="button">顯示本題正解</button>
+              <button id="jq_resetProgressBtn" type="button">進度歸 0</button>
+            </div>
+            <div class="stats">
+              <p class="statsLine" id="jq_statsLine1">答對：0 題　｜　答錯：0 題　｜　正確率：0%</p>
+              <p class="statsLine" id="jq_statsLine2">總答題時間：0:00（平均 0 秒 / 題）</p>
             </div>
           </div>
 
@@ -403,6 +546,35 @@
                 <input id="dz_rem" autocomplete="off" />
                 <div class="mini">餘氣（無則輸入 -）</div>
               </div>
+            </div>
+          </div>
+
+          <div id="dizhiReversePanel" style="display:none;">
+            <div class="grid dizhi">
+              <div class="field">
+                <label for="dz_rev_branch">地支</label>
+                <input id="dz_rev_branch" autocomplete="off" placeholder="請輸入對應地支" />
+                <div class="mini">依主氣、中氣、餘氣填寫地支</div>
+              </div>
+              <div class="field">
+                <label>主氣</label>
+                <input id="dz_rev_main" disabled />
+              </div>
+              <div class="field">
+                <label>中氣</label>
+                <input id="dz_rev_mid" disabled />
+              </div>
+              <div class="field">
+                <label>餘氣</label>
+                <input id="dz_rev_rem" disabled />
+              </div>
+            </div>
+          </div>
+
+          <!-- 新增：關係類測驗面板 -->
+          <div id="relationPanel" style="display:none;">
+            <div id="relQuestionArea" class="question-area">
+              <!-- 題目會動態生成 -->
             </div>
           </div>
 
@@ -448,14 +620,261 @@ const DIZHI_DATA = [
   { branch: "亥", main: "壬水", mid: "甲木", rem: "-" },
 ];
 
+// ---------- 24 節氣與地支月（節氣）----------
+const JIEQI_DATA = [
+  { month: "1月", branchMonth: "丑月", jie: "小寒", qi: "大寒", season: "冬末" },
+  { month: "2月", branchMonth: "寅月", jie: "立春", qi: "雨水", season: "初春" },
+  { month: "3月", branchMonth: "卯月", jie: "驚蟄", qi: "春分", season: "春" },
+  { month: "4月", branchMonth: "辰月", jie: "清明", qi: "穀雨", season: "春末" },
+  { month: "5月", branchMonth: "巳月", jie: "立夏", qi: "小滿", season: "初夏" },
+  { month: "6月", branchMonth: "午月", jie: "芒種", qi: "夏至", season: "夏" },
+  { month: "7月", branchMonth: "未月", jie: "小暑", qi: "大暑", season: "夏末" },
+  { month: "8月", branchMonth: "申月", jie: "立秋", qi: "處暑", season: "初秋" },
+  { month: "9月", branchMonth: "酉月", jie: "白露", qi: "秋分", season: "秋" },
+  { month: "10月", branchMonth: "戌月", jie: "寒露", qi: "霜降", season: "秋末" },
+  { month: "11月", branchMonth: "亥月", jie: "立冬", qi: "小雪", season: "初冬" },
+  { month: "12月", branchMonth: "子月", jie: "大雪", qi: "冬至", season: "冬" },
+];
+
+const TIANGAN_RELATIONS_DATA = [
+  { stem1: "甲", stem2: "己", combine: "土", clashStem: "甲", clashWith: "庚", startPoint: "甲" },
+  { stem1: "乙", stem2: "庚", combine: "金", clashStem: "乙", clashWith: "辛", startPoint: "丙" },
+  { stem1: "丙", stem2: "辛", combine: "水", clashStem: "丙", clashWith: "壬", startPoint: "戊" },
+  { stem1: "丁", stem2: "壬", combine: "木", clashStem: "丁", clashWith: "癸", startPoint: "庚" },
+  { stem1: "戊", stem2: "癸", combine: "火", clashStem: null, clashWith: null, startPoint: "壬" }
+];
+
+const DIZHI_RELATIONS_DATA = {
+  '三合': [
+      { items: ['水', '申', '子', '亥'], template: '_局_、_、_' },
+      { items: ['木', '亥', '卯', '未'], template: '_局_、_、_' },
+      { items: ['火', '寅', '午', '戌'], template: '_局_、_、_' },
+      { items: ['金', '巳', '酉', '丑'], template: '_局_、_、_' },
+      { items: ['土', '戌', '丑', '未'], template: '_局_、_、_' }
+  ],
+  '三會': [
+      { items: ['東方', '木', '寅', '卯', '辰'], template: '_方_、_、_、_' },
+      { items: ['南方', '火', '巳', '午', '未'], template: '_方_、_、_、_' },
+      { items: ['西方', '金', '申', '酉', '戌'], template: '_方_、_、_、_' },
+      { items: ['北方', '水', '亥', '子', '丑'], template: '_方_、_、_、_' }
+  ],
+  '六沖': [
+      { items: ['寅', '申'], template: '_、_沖' },
+      { items: ['卯', '酉'], template: '_、_沖' },
+      { items: ['辰', '戌'], template: '_、_沖' },
+      { items: ['巳', '亥'], template: '_、_沖' },
+      { items: ['子', '午'], template: '_、_沖' },
+      { items: ['丑', '未'], template: '_、_沖' }
+  ],
+  '六合': [
+      { items: ['子', '丑', '化土'], template: '_、_，_' },
+      { items: ['寅', '亥', '化木'], template: '_、_，_' },
+      { items: ['卯', '戌', '化火'], template: '_、_，_' },
+      { items: ['辰', '酉', '化金'], template: '_、_，_' },
+      { items: ['巳', '申', '化金'], template: '_、_，_' },
+      { items: ['午', '未', '化土'], template: '_、_，_' }
+  ]
+};
+const JIEQI_FIELDS = [
+  { key: "month", label: "月份" },
+  { key: "branchMonth", label: "地支月" },
+  { key: "jie", label: "節（前半月）" },
+  { key: "qi", label: "氣（後半月）" },
+  { key: "season", label: "季節" },
+];
+const JIEQI_TOTAL = JIEQI_DATA.length * JIEQI_FIELDS.length;
+const jqEls = {
+  month: document.getElementById("jq_month"),
+  branchMonth: document.getElementById("jq_branchMonth"),
+  jie: document.getElementById("jq_jie"),
+  qi: document.getElementById("jq_qi"),
+  season: document.getElementById("jq_season"),
+  statsLine1: document.getElementById("jq_statsLine1"),
+  statsLine2: document.getElementById("jq_statsLine2"),
+  checkBtn: document.getElementById("jq_checkBtn"),
+  nextBtn: document.getElementById("jq_nextBtn"),
+  revealBtn: document.getElementById("jq_revealBtn"),
+  resetProgressBtn: document.getElementById("jq_resetProgressBtn"),
+};
+let jqRemaining = [];
+let jqCurrentRow = null;
+let jqGivenFieldKey = null;
+let jqLocked = false;
+let jqCorrectCount = 0, jqWrongCount = 0, jqAnsweredCount = 0, jqTotalAnswerMs = 0, jqQuestionStartTime = null;
+
+function normalizeMonth(s) {
+  return (s ?? "").toString().replace(/[^\d]/g, "").replace(/\s+/g, "").trim();
+}
+function normalizeBranchMonth(s) {
+  return (s ?? "").toString().replace(/月/g, "").replace(/\s+/g, "").replace(/[　]/g, "").trim();
+}
+function jqClearMarks() {
+  for (const f of JIEQI_FIELDS) {
+    const el = jqEls[f.key];
+    if (el) el.classList.remove("okInput", "badInput");
+  }
+}
+function jqUpdateStats() {
+  const total = jqAnsweredCount;
+  const accuracy = total > 0 ? Math.round((jqCorrectCount / total) * 100) : 0;
+  const sec = jqTotalAnswerMs / 1000;
+  const m = Math.floor(sec / 60), s = Math.round(sec % 60);
+  const avg = total > 0 ? (sec / total) : 0;
+  if (jqEls.statsLine1) jqEls.statsLine1.textContent = `答對：${jqCorrectCount} 題　｜　答錯：${jqWrongCount} 題　｜　正確率：${accuracy}%`;
+  if (jqEls.statsLine2) jqEls.statsLine2.textContent = `總答題時間：${m}:${String(s).padStart(2,"0")}（平均 ${avg.toFixed(1).replace(/\.0$/,"")} 秒 / 題）`;
+}
+function jqSetProgress() {
+  const done = JIEQI_TOTAL - jqRemaining.length;
+  els.progressText.textContent = `進度：${done} / ${JIEQI_TOTAL}`;
+  els.progressBar.style.width = `${(done / JIEQI_TOTAL) * 100}%`;
+  if (els.progressTrack) els.progressTrack.setAttribute("aria-valuenow", String(done));
+}
+function jqSetGivenField(key) {
+  jqGivenFieldKey = key;
+  for (const f of JIEQI_FIELDS) {
+    const el = jqEls[f.key];
+    if (el) el.disabled = f.key === key;
+  }
+}
+function jqFillInputs() {
+  jqClearMarks();
+  jqLocked = false;
+  setStatus("請輸入其餘 4 個欄位，完成後按「核對」。");
+  jqQuestionStartTime = performance.now();
+  for (const f of JIEQI_FIELDS) {
+    const el = jqEls[f.key];
+    if (!el) continue;
+    if (f.key === jqGivenFieldKey) el.value = jqCurrentRow[f.key];
+    else el.value = "";
+  }
+  const first = JIEQI_FIELDS.map(f => jqEls[f.key]).find(i => i && !i.disabled);
+  if (first) first.focus();
+}
+function jqBuildBank() {
+  const q = [];
+  for (let ri = 0; ri < JIEQI_DATA.length; ri++)
+    for (const f of JIEQI_FIELDS) q.push({ rowIndex: ri, givenFieldKey: f.key });
+  return q;
+}
+function jqResetProgress() {
+  jqRemaining = shuffleInPlace(jqBuildBank());
+  jqCurrentRow = null;
+  jqGivenFieldKey = null;
+  jqCorrectCount = 0;
+  jqWrongCount = 0;
+  jqAnsweredCount = 0;
+  jqTotalAnswerMs = 0;
+  jqQuestionStartTime = null;
+  if (jqEls.checkBtn) jqEls.checkBtn.disabled = false;
+  if (jqEls.nextBtn) jqEls.nextBtn.disabled = false;
+  if (jqEls.revealBtn) jqEls.revealBtn.disabled = false;
+  jqSetProgress();
+  jqUpdateStats();
+  jqNextQuestion();
+}
+function jqNextQuestion() {
+  if (jqRemaining.length === 0) {
+    jqClearMarks();
+    jqSetProgress();
+    jqUpdateStats();
+    const total = jqAnsweredCount;
+    const accuracy = total > 0 ? Math.round((jqCorrectCount / total) * 100) : 0;
+    const sec = jqTotalAnswerMs / 1000;
+    const m = Math.floor(sec / 60), s = Math.round(sec % 60);
+    setStatus(`<span class="okText">恭喜完成 60 題！</span><br>正確率：${accuracy}%　｜　總時間：${m}:${String(s).padStart(2,"0")}<br>可按「進度歸 0」重新開始。`);
+    if (jqEls.checkBtn) jqEls.checkBtn.disabled = true;
+    if (jqEls.nextBtn) jqEls.nextBtn.disabled = true;
+    if (jqEls.revealBtn) jqEls.revealBtn.disabled = true;
+    return;
+  }
+  const item = jqRemaining.pop();
+  jqCurrentRow = JIEQI_DATA[item.rowIndex];
+  jqSetGivenField(item.givenFieldKey);
+  jqSetProgress();
+  jqFillInputs();
+}
+function jqGetAnswers() {
+  const o = {};
+  for (const f of JIEQI_FIELDS) o[f.key] = jqEls[f.key] ? jqEls[f.key].value : "";
+  return o;
+}
+function jqCheckAnswer() {
+  if (jqLocked) return;
+  if (!jqCurrentRow || !jqGivenFieldKey) return jqNextQuestion();
+  jqClearMarks();
+  const now = performance.now();
+  if (jqQuestionStartTime != null) {
+    jqTotalAnswerMs += now - jqQuestionStartTime;
+    jqAnsweredCount += 1;
+    jqQuestionStartTime = null;
+  }
+  const user = jqGetAnswers();
+  const correct = jqCurrentRow;
+  let allOk = true;
+  const wrongKeys = [];
+  for (const f of JIEQI_FIELDS) {
+    const el = jqEls[f.key];
+    if (!el) continue;
+    if (el.disabled) { el.classList.add("okInput"); continue; }
+    let ok;
+    if (f.key === "month") ok = normalizeMonth(user[f.key]) === normalizeMonth(correct[f.key]);
+    else if (f.key === "branchMonth") ok = normalizeBranchMonth(user[f.key]) === normalizeBranchMonth(correct[f.key]);
+    else ok = normalize(user[f.key]) === normalize(correct[f.key]);
+    if (ok) el.classList.add("okInput");
+    else { el.classList.add("badInput"); allOk = false; wrongKeys.push(f.key); }
+  }
+  if (allOk) {
+    jqCorrectCount += 1;
+    jqUpdateStats();
+    jqLocked = true;
+    setStatus(`<span class="okText">正確</span>（1 秒後自動下一題）`);
+    setTimeout(jqNextQuestion, 1000);
+    return;
+  }
+  jqWrongCount += 1;
+  jqUpdateStats();
+  const wrongLabels = wrongKeys.map(k => JIEQI_FIELDS.find(f => f.key === k)?.label ?? k).join("、");
+  setStatus(`<span class="badText">錯誤</span>（錯在：${wrongLabels}）<br>正解：${correct.month}／${correct.branchMonth}／${correct.jie}／${correct.qi}／${correct.season}<br>請按「下一題」繼續。`);
+}
+function jqRevealAnswer() {
+  if (!jqCurrentRow) return;
+  const c = jqCurrentRow;
+  setStatus(`本題正解：${c.month}／${c.branchMonth}／${c.jie}／${c.qi}／${c.season}`);
+}
+function showJieqiQuiz() {
+  mode = "jieqi";
+  els.tianganPanel.style.display = "none";
+  els.dizhiPanel.style.display = "none";
+  els.dizhiReversePanel.style.display = "none";
+  els.jieqiPanel.style.display = "block";
+  els.doneScreen.classList.remove("show");
+  if (els.skipBtn) els.skipBtn.style.display = "none";
+  jqResetProgress();
+}
+
 const els = {
   menuView: document.getElementById("menuView"),
+  mainMenu: document.getElementById("mainMenu"),
+  tianganMenu: document.getElementById("tianganMenu"),
+  dizhiMenu: document.getElementById("dizhiMenu"),
+  
   tablesView: document.getElementById("tablesView"),
   quizView: document.getElementById("quizView"),
   backBtn: document.getElementById("backBtn"),
-  startTiangan: document.getElementById("startTiangan"),
-  startDizhi: document.getElementById("startDizhi"),
+  
+  startJieqi: document.getElementById("startJieqi"),
+  toTianganMenu: document.getElementById("toTianganMenu"),
+  toDizhiMenu: document.getElementById("toDizhiMenu"),
   showTables: document.getElementById("showTables"),
+
+  startTianganLingguan: document.getElementById("startTianganLingguan"),
+  startTianganRelations: document.getElementById("startTianganRelations"),
+  
+  startDizhiCanggan: document.getElementById("startDizhiCanggan"),
+  startDizhiSanhe: document.getElementById("startDizhiSanhe"),
+  startDizhiSanhui: document.getElementById("startDizhiSanhui"),
+  startDizhiLiuchong: document.getElementById("startDizhiLiuchong"),
+  startDizhiLiuhe: document.getElementById("startDizhiLiuhe"),
 
   progressText: document.getElementById("progressText"),
   progressBar: document.getElementById("progressBar"),
@@ -464,6 +883,7 @@ const els = {
   skipBtn: document.getElementById("skipBtn"),
   status: document.getElementById("status"),
 
+  jieqiPanel: document.getElementById("jieqiPanel"),
   tianganPanel: document.getElementById("tianganPanel"),
   tg_stem: document.getElementById("tg_stem"),
   tg_attr: document.getElementById("tg_attr"),
@@ -474,6 +894,15 @@ const els = {
   dz_main: document.getElementById("dz_main"),
   dz_mid: document.getElementById("dz_mid"),
   dz_rem: document.getElementById("dz_rem"),
+
+  dizhiReversePanel: document.getElementById("dizhiReversePanel"),
+  dz_rev_branch: document.getElementById("dz_rev_branch"),
+  dz_rev_main: document.getElementById("dz_rev_main"),
+  dz_rev_mid: document.getElementById("dz_rev_mid"),
+  dz_rev_rem: document.getElementById("dz_rev_rem"),
+
+  relationPanel: document.getElementById("relationPanel"),
+  relQuestionArea: document.getElementById("relQuestionArea"),
 
   doneScreen: document.getElementById("doneScreen"),
   doneText: document.getElementById("doneText"),
@@ -499,6 +928,11 @@ function normalizeDash(s) {
   return t;
 }
 
+function normalizeBranch(s) {
+  // 地支：忽略「月」與空白，只比對地支字
+  return (s ?? "").toString().replace(/月/g, "").replace(/\s+/g, "").replace(/[　]/g, "").trim();
+}
+
 function clearMarks(inputs) {
   for (const i of inputs) i.classList.remove("okInput", "badInput");
 }
@@ -518,13 +952,28 @@ function setProgress(done, total) {
 
 function showMenu() {
   els.menuView.style.display = "block";
+  els.mainMenu.style.display = "grid";
+  els.tianganMenu.style.display = "none";
+  els.dizhiMenu.style.display = "none";
+  
   els.tablesView?.classList.remove("show");
   els.quizView.classList.remove("show");
+  els.jieqiPanel.style.display = "none";
   els.tianganPanel.style.display = "none";
   els.dizhiPanel.style.display = "none";
+  els.dizhiReversePanel.style.display = "none";
+  els.relationPanel.style.display = "none";
   els.doneScreen.classList.remove("show");
+  if (els.skipBtn) els.skipBtn.style.display = "";
   setStatus("請選擇一個測驗模式。");
   setProgress(0, 0);
+}
+
+function showSubMenu(menuId) {
+  els.mainMenu.style.display = "none";
+  els.tianganMenu.style.display = (menuId === 'tiangan') ? "grid" : "none";
+  els.dizhiMenu.style.display = (menuId === 'dizhi') ? "grid" : "none";
+  setStatus("請選擇子模式。");
 }
 
 function showQuiz() {
@@ -541,15 +990,209 @@ function showTables() {
   els.tianganPanel.style.display = "none";
   els.dizhiPanel.style.display = "none";
   els.tablesView?.classList.add("show");
+
+  // 生成節氣表內容
+  const tbody = document.getElementById("jieqiTableBody");
+  if (tbody) {
+    tbody.innerHTML = JIEQI_DATA.map(d => `
+      <tr>
+        <td>${d.month}</td>
+        <td>${d.branchMonth}</td>
+        <td>${d.jie}</td>
+        <td>${d.qi}</td>
+        <td>${d.season}</td>
+      </tr>
+    `).join("");
+  }
+
+  // 生成地支關係表內容
+  const extra = document.getElementById("extraTables");
+  if (extra) {
+    let html = "";
+    
+    // 1. 天干四沖 五合 掌訣起點
+    html += `
+      <div class="tableWrap">
+        <div class="sectionTitle">天干四沖、五合、掌訣起點</div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>天干 1</th>
+              <th>天干 2</th>
+              <th>合化</th>
+              <th>相沖</th>
+              <th>掌訣起點</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${TIANGAN_RELATIONS_DATA.map(d => `
+              <tr>
+                <td>${d.stem1}</td>
+                <td>${d.stem2}</td>
+                <td>${d.combine}</td>
+                <td>${d.clashStem ? d.clashStem + "、" + d.clashWith + "沖" : "-"}</td>
+                <td>${d.startPoint}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    // 2. 地支關係
+    for (const category in DIZHI_RELATIONS_DATA) {
+      html += `
+        <div class="tableWrap">
+          <div class="sectionTitle">地支${category}</div>
+          <table class="data-table">
+            <tbody>
+              ${DIZHI_RELATIONS_DATA[category].map(set => `
+                <tr>
+                  ${set.items.map(item => `<td>${item}</td>`).join("")}
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+    extra.innerHTML = html;
+  }
+
   setStatus("資料表模式：僅供查看。可按右上角返回主選單。");
   setProgress(0, 0);
 }
 
-let mode = null; // "tiangan" | "dizhi"
+let mode = null; 
 let bank = [];
 let total = 0;
 let current = null;
 let locked = false;
+
+function buildTianganRelationsBank() {
+  const q = [];
+  // 每個關係產生 5 題（隨機挖掉一個欄位）
+  TIANGAN_RELATIONS_DATA.forEach((item, idx) => {
+    const fields = ['stem1', 'stem2', 'combine', 'clashStem', 'clashWith', 'startPoint'].filter(f => item[f] !== null);
+    fields.forEach(givenField => {
+      q.push({ idx, givenField, type: 'tiangan_rel' });
+    });
+  });
+  return q;
+}
+
+function buildDizhiRelationsBank(category) {
+  const q = [];
+  DIZHI_RELATIONS_DATA[category].forEach((set, idx) => {
+    set.items.forEach((item, givenIndex) => {
+      q.push({ idx, givenIndex, category, type: 'dizhi_rel' });
+    });
+  });
+  return q;
+}
+
+function renderRelationQuestion() {
+  locked = false;
+  els.relationPanel.style.display = "block";
+  els.tianganPanel.style.display = "none";
+  els.jieqiPanel.style.display = "none";
+  els.dizhiPanel.style.display = "none";
+  els.dizhiReversePanel.style.display = "none";
+  
+  const area = els.relQuestionArea;
+  area.innerHTML = '';
+  
+  if (current.type === 'tiangan_rel') {
+    const item = TIANGAN_RELATIONS_DATA[current.idx];
+    const givenField = current.givenField;
+    
+    let html = `<div>`;
+    // 合化部分
+    html += renderRelField('stem1', item.stem1, givenField) + "，" + 
+            renderRelField('stem2', item.stem2, givenField) + " 合化 " + 
+            renderRelField('combine', item.combine, givenField);
+    
+    // 相沖部分
+    if (item.clashStem) {
+      html += `</div><div>` + 
+              renderRelField('clashStem', item.clashStem, givenField) + "，" + 
+              renderRelField('clashWith', item.clashWith, givenField) + " 沖";
+    }
+    
+    // 掌訣起點
+    html += `</div><div>掌訣起點為 ` + renderRelField('startPoint', item.startPoint, givenField) + `</div>`;
+    
+    area.innerHTML = html;
+  } else {
+    // 地支關係
+    const set = DIZHI_RELATIONS_DATA[current.category][current.idx];
+    const template = set.template;
+    let itemIdx = 0;
+    
+    for (let i = 0; i < template.length; i++) {
+      const char = template[i];
+      if (char === '_') {
+        if (itemIdx === current.givenIndex) {
+          const span = document.createElement('span');
+          span.className = 'given-text';
+          span.innerText = set.items[itemIdx];
+          area.appendChild(span);
+        } else {
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'quiz-input-cell';
+          input.dataset.answer = set.items[itemIdx];
+          input.oninput = checkRelationAnswer;
+          area.appendChild(input);
+        }
+        itemIdx++;
+      } else {
+        const span = document.createElement('span');
+        span.innerText = char;
+        area.appendChild(span);
+      }
+    }
+  }
+  
+  setStatus("請填寫其餘欄位；全對後自動下一題。");
+  area.querySelector('input')?.focus();
+}
+
+function renderRelField(id, val, givenField) {
+  if (id === givenField) {
+    return `<span class="given-text">${val}</span>`;
+  } else {
+    return `<input type="text" class="quiz-input-cell" data-id="${id}" data-answer="${val}" oninput="checkRelationAnswer(event)">`;
+  }
+}
+
+function checkRelationAnswer(e) {
+  if (locked) return;
+  const area = els.relQuestionArea;
+  const inputs = Array.from(area.querySelectorAll('input'));
+  
+  let allCorrect = true;
+  inputs.forEach(input => {
+    const val = normalize(input.value);
+    const ans = normalize(input.dataset.answer);
+    if (val === ans) {
+      input.classList.add('correct');
+      input.classList.remove('incorrect');
+    } else if (val.length > 0) {
+      input.classList.add('incorrect');
+      allCorrect = false;
+    } else {
+      input.classList.remove('correct', 'incorrect');
+      allCorrect = false;
+    }
+  });
+
+  if (allCorrect) {
+    locked = true;
+    setStatus(`<span class="okText">正確！</span>`);
+    setTimeout(() => nextQuestion(), 1000);
+  }
+}
 
 function buildTianganBank() {
   const keys = ["stem", "attr", "pos"];
@@ -562,7 +1205,10 @@ function buildTianganBank() {
 
 function buildDizhiBank() {
   const q = [];
-  for (let i = 0; i < DIZHI_DATA.length; i++) q.push({ idx: i });
+  for (let i = 0; i < DIZHI_DATA.length; i++) {
+    q.push({ idx: i, type: "branch_to_qi" });
+    q.push({ idx: i, type: "qi_to_branch" });
+  }
   return q;
 }
 
@@ -607,7 +1253,26 @@ function validateAndMaybeAdvance() {
     return;
   }
 
-  const data = DIZHI_DATA[current.idx];
+  if (mode === "dizhi" && current.type === "qi_to_branch") {
+    const data = DIZHI_DATA[current.idx];
+    els.dz_rev_main.classList.add("okInput");
+    els.dz_rev_mid.classList.add("okInput");
+    els.dz_rev_rem.classList.add("okInput");
+    const ok = normalizeBranch(els.dz_rev_branch.value) === normalizeBranch(data.branch);
+    els.dz_rev_branch.classList.toggle("okInput", ok);
+    els.dz_rev_branch.classList.toggle("badInput", !ok);
+    if (ok) {
+      locked = true;
+      setStatus(`<span class="okText">正確</span>（1 秒後自動下一題）`);
+      window.setTimeout(() => nextQuestion(), 1000);
+    } else {
+      setStatus("請依主氣、中氣、餘氣填寫對應地支。");
+    }
+    return;
+  }
+
+  if (mode === "dizhi") {
+    const data = DIZHI_DATA[current.idx];
 
   els.dz_branch.classList.add("okInput");
 
@@ -634,18 +1299,27 @@ function validateAndMaybeAdvance() {
   } else {
     setStatus("提示：無中氣/餘氣者請輸入「-」。修正到全對會自動跳題。");
   }
+  }
 }
 
 function renderQuestion() {
   locked = false;
-  clearMarks([els.tg_stem, els.tg_attr, els.tg_pos, els.dz_branch, els.dz_main, els.dz_mid, els.dz_rem]);
+  clearMarks([els.tg_stem, els.tg_attr, els.tg_pos, els.dz_branch, els.dz_main, els.dz_mid, els.dz_rem, els.dz_rev_branch, els.dz_rev_main, els.dz_rev_mid, els.dz_rev_rem]);
 
   const done = total - bank.length;
   setProgress(done, total);
 
+  if (current.type === 'tiangan_rel' || current.type === 'dizhi_rel') {
+    renderRelationQuestion();
+    return;
+  }
+
   if (mode === "tiangan") {
     els.tianganPanel.style.display = "block";
+    els.jieqiPanel.style.display = "none";
     els.dizhiPanel.style.display = "none";
+    els.dizhiReversePanel.style.display = "none";
+    els.relationPanel.style.display = "none";
     els.doneScreen.classList.remove("show");
 
     const data = TIANGAN_DATA[current.idx];
@@ -664,8 +1338,31 @@ function renderQuestion() {
     return;
   }
 
+  if (mode === "dizhi" && current.type === "qi_to_branch") {
+    els.tianganPanel.style.display = "none";
+    els.jieqiPanel.style.display = "none";
+    els.dizhiPanel.style.display = "none";
+    els.dizhiReversePanel.style.display = "block";
+    els.relationPanel.style.display = "none";
+    els.doneScreen.classList.remove("show");
+
+    const data = DIZHI_DATA[current.idx];
+    els.dz_rev_main.value = data.main;
+    els.dz_rev_mid.value = data.mid;
+    els.dz_rev_rem.value = data.rem;
+    els.dz_rev_branch.value = "";
+    els.dz_rev_branch.disabled = false;
+
+    setStatus("請依主氣、中氣、餘氣填寫對應地支；正確後 1 秒自動下一題。");
+    els.dz_rev_branch.focus();
+    return;
+  }
+
   els.tianganPanel.style.display = "none";
+  els.jieqiPanel.style.display = "none";
   els.dizhiPanel.style.display = "block";
+  els.dizhiReversePanel.style.display = "none";
+  els.relationPanel.style.display = "none";
   els.doneScreen.classList.remove("show");
 
   const data = DIZHI_DATA[current.idx];
@@ -688,11 +1385,17 @@ function finishMode() {
   els.doneScreen.classList.add("show");
   els.tianganPanel.style.display = "none";
   els.dizhiPanel.style.display = "none";
+  els.dizhiReversePanel.style.display = "none";
+  els.relationPanel.style.display = "none";
   setStatus(`<span class="okText">完成</span>：本模式題目已全部作答。`);
-  els.doneText.textContent =
-    mode === "tiangan"
-      ? "你已完成「天干臨官位」全部 30 題。"
-      : "你已完成「地支藏干」全部 12 題。";
+  
+  let modeName = "";
+  if (mode === "tiangan") modeName = "天干臨官位";
+  else if (mode === "tiangan_rel") modeName = "天干四沖、五合、掌訣起點";
+  else if (mode === "dizhi") modeName = "地支藏干";
+  else if (mode.startsWith("dizhi_rel_")) modeName = "地支" + mode.replace("dizhi_rel_", "");
+
+  els.doneText.textContent = `你已完成「${modeName}」全部 ${total} 題。`;
 }
 
 function nextQuestion() {
@@ -708,12 +1411,15 @@ function startMode(nextMode) {
 
   if (mode === "tiangan") {
     bank = shuffleInPlace(buildTianganBank());
-    total = bank.length;
-    nextQuestion();
-    return;
+  } else if (mode === "tiangan_rel") {
+    bank = shuffleInPlace(buildTianganRelationsBank());
+  } else if (mode === "dizhi") {
+    bank = shuffleInPlace(buildDizhiBank());
+  } else if (mode.startsWith("dizhi_rel_")) {
+    const category = mode.replace("dizhi_rel_", "");
+    bank = shuffleInPlace(buildDizhiRelationsBank(category));
   }
-
-  bank = shuffleInPlace(buildDizhiBank());
+  
   total = bank.length;
   nextQuestion();
 }
@@ -731,8 +1437,20 @@ function wireLiveValidation(inputs) {
 }
 
 function wireEvents() {
-  els.startTiangan.addEventListener("click", () => startMode("tiangan"));
-  els.startDizhi.addEventListener("click", () => startMode("dizhi"));
+  els.startJieqi.addEventListener("click", () => { showQuiz(); showJieqiQuiz(); });
+  
+  els.toTianganMenu.addEventListener("click", () => showSubMenu('tiangan'));
+  els.toDizhiMenu.addEventListener("click", () => showSubMenu('dizhi'));
+  
+  els.startTianganLingguan.addEventListener("click", () => startMode("tiangan"));
+  els.startTianganRelations.addEventListener("click", () => startMode("tiangan_rel"));
+  
+  els.startDizhiCanggan.addEventListener("click", () => startMode("dizhi"));
+  els.startDizhiSanhe.addEventListener("click", () => startMode("dizhi_rel_三合"));
+  els.startDizhiSanhui.addEventListener("click", () => startMode("dizhi_rel_三會"));
+  els.startDizhiLiuchong.addEventListener("click", () => startMode("dizhi_rel_六沖"));
+  els.startDizhiLiuhe.addEventListener("click", () => startMode("dizhi_rel_六合"));
+
   els.showTables.addEventListener("click", () => showTables());
 
   els.backBtn.addEventListener("click", () => showMenu());
@@ -743,7 +1461,16 @@ function wireEvents() {
     nextQuestion();
   });
 
-  wireLiveValidation([els.tg_stem, els.tg_attr, els.tg_pos, els.dz_main, els.dz_mid, els.dz_rem]);
+  if (jqEls.checkBtn) jqEls.checkBtn.addEventListener("click", jqCheckAnswer);
+  if (jqEls.nextBtn) jqEls.nextBtn.addEventListener("click", jqNextQuestion);
+  if (jqEls.revealBtn) jqEls.revealBtn.addEventListener("click", jqRevealAnswer);
+  if (jqEls.resetProgressBtn) jqEls.resetProgressBtn.addEventListener("click", jqResetProgress);
+  for (const f of JIEQI_FIELDS) {
+    const el = jqEls[f.key];
+    if (el) el.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); jqCheckAnswer(); } });
+  }
+
+  wireLiveValidation([els.tg_stem, els.tg_attr, els.tg_pos, els.dz_main, els.dz_mid, els.dz_rem, els.dz_rev_branch]);
 }
 
 wireEvents();
